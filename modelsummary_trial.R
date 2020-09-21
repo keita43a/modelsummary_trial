@@ -34,7 +34,7 @@ msummary(regs)
 msummary(regs, 'markdown')
 
 # table apparence: テーブル修飾
-msummary(regs, output = 'html')%>%
+msummary(regs, output = 'html') %>%
   gt::tab_style(style = cell_fill(color = "lightcyan"),
             locations = cells_body(rows = 3)) %>%
   gt::tab_style(style = cell_text(weight = "bold"),
@@ -69,7 +69,7 @@ var_nam = c("mpg" = "Mile per gallon", "(Intercept)" = "Constant",
 msummary(regs, coef_map = var_nam)
 
 
-# model fit モデルフィット
+# model fit モデル適合度
 
 msummary(regs, gof_omit = "R2|AIC|BIC")
 
@@ -85,20 +85,27 @@ msummary(regs, fmt = '%.2f') # second decimal point 小数点第二位
 
 # add rows 行の追加
 
-row1 <- c('FE 1', 'No', 'No')
-row2 <- c('FE 2', "No","No")
-msummary(regs, add_rows = row2)
+##row1 <- c('FE 1', 'No', 'No')
+##row2 <- c('FE 2', "No","No")
+
+rows <- tribble(~term, ~`Model A`, ~`Model B`,
+               'FE 1', 'No', 'No',
+               'FE 2', "No","No")  # Sep 20, added. Now the add_rows accepts only data.frame
+
+attr(rows, 'position') <- c(15,16) # 15-16行目に追加
+
+msummary(regs, add_rows = rows)
 
 
 # estimatr::lm_robust
 
 regs_rob <- list()
-regs_rob[["Model A rob"]] <- lm_robust(mpg ? cyl+disp, 
+regs_rob[["Model A rob"]] <- lm_robust(mpg ~ cyl+disp, 
                                        se_type = "stata",
-                                       fixed_effects = ? vs + am,mtcars)
-regs_rob[["Model B rob"]] <- lm_robust(mpg ? cyl+disp+hp, 
+                                       fixed_effects = ~ vs + am,mtcars)
+regs_rob[["Model B rob"]] <- lm_robust(mpg ~ cyl+disp+hp, 
                                        se_type = "stata",
-                                       fixed_effects = ? vs + am,mtcars)
+                                       fixed_effects = ~ vs + am,mtcars)
 
 msummary(regs_rob)
 
